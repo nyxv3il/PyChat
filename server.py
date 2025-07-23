@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 
 class ChatServer:
-    def __init__(self, host='localhost', port=12345):
+    def __init__(self, host='192.168.1.100', port=8080):
         self.host = host
         self.port = port
         self.clients = {}
@@ -143,7 +143,7 @@ class ChatServer:
             client_name = self.clients[client_socket]['name']
             address = self.clients[client_socket]['address']
             
-            print(f"📱 {client_name} ({address[0]}:{address[1]}) disconnected")
+            print(f"> {client_name} ({address[0]}:{address[1]}) disconnected")
             
 
             leave_msg = {

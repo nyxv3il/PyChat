@@ -300,8 +300,8 @@ class ChatClient:
 def main():
     print("== Starting Terminal Chat Client... ==")
     
-    HOST = 'localhost'
-    PORT = 12345
+    HOST = 'fishtank.webhop.me'
+    PORT = 8080
     
     client = ChatClient(HOST, PORT)
     
