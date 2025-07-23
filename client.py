@@ -100,7 +100,7 @@ class ChatClient:
         if msg_type == 'system':
 
             message = message_data.get('message', '')
-            formatted = f">> [{timestamp}] {message}"
+            formatted = f"[{timestamp}] {message}"
 
             if len(formatted) < self.terminal_width:
                 padding = max(0, (self.terminal_width - len(formatted)) // 2)
@@ -119,7 +119,7 @@ class ChatClient:
             if is_own:
 
                 timestamp_part = f"[{timestamp}]"
-                content = f"You : {message} {timestamp_part}"
+                content = f"You: {message} {timestamp_part}"
                 
 
                 if len(content) < self.terminal_width - 1:
@@ -127,9 +127,9 @@ class ChatClient:
                     return " " * padding + content
                 else:
 
-                    max_msg_len = self.terminal_width - len("You : ") - len(timestamp_part) - 2
+                    max_msg_len = self.terminal_width - len("You: ") - len(timestamp_part) - 2
                     truncated_msg = message[:max_msg_len] + "..." if len(message) > max_msg_len else message
-                    content = f"You : {truncated_msg} {timestamp_part}"
+                    content = f"You: {truncated_msg} {timestamp_part}"
                     padding = max(0, self.terminal_width - len(content) - 1)
                     return " " * padding + content
             else:
@@ -138,16 +138,16 @@ class ChatClient:
                 reset = '\033[0m'
                 color = colors[hash(sender) % len(colors)]
                 
-                content = f"{color}{sender}{reset} : {message} [{timestamp}]"
+                content = f"{color}{sender}{reset}: {message} [{timestamp}]"
                 
 
                 if len(content) > self.terminal_width - 1:
 
-                    visible_length = len(f"{sender} : {message} [{timestamp}]")
+                    visible_length = len(f"{sender}: {message} [{timestamp}]")
                     if visible_length > self.terminal_width - 1:
-                        max_msg_len = self.terminal_width - len(f"{sender} :  [{timestamp}]") - 4
+                        max_msg_len = self.terminal_width - len(f"{sender}:  [{timestamp}]") - 4
                         truncated_msg = message[:max_msg_len] + "..." if len(message) > max_msg_len else message
-                        content = f"{color}{sender}{reset} : {truncated_msg} [{timestamp}]"
+                        content = f"{color}{sender}{reset}: {truncated_msg} [{timestamp}]"
                 
                 return content
         
@@ -217,7 +217,7 @@ class ChatClient:
         
 
         timestamp = datetime.now().strftime('%H:%M:%S')
-        cmd_display = f"You : {command} [{timestamp}]"
+        cmd_display = f"You: {command} [{timestamp}]"
         cmd_padding = max(0, self.terminal_width - len(cmd_display) - 1)
         self.messages.append(f"{' ' * cmd_padding}{cmd_display}")
         

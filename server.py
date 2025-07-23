@@ -112,7 +112,7 @@ class ChatServer:
                 'timestamp': datetime.now().strftime('%H:%M:%S')
             }
             self.broadcast_message(chat_msg)
-            print(f" {client_name}: {message_data.get('message', '')}")
+            print(f"> {client_name}: {message_data.get('message', '')}")
     
     def broadcast_message(self, message, exclude=None):
         message_str = json.dumps(message)
