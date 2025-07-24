@@ -2,13 +2,17 @@ import socket
 import threading
 import json
 import time
+import os
 from datetime import datetime
+from dotenv import load_dotenv
 
-class ChatServer:
-    def __init__(self, host='192.168.1.100', port=8080):
-        self.host = host
-        self.port = port
-        self.clients = {}
+class PyChatServer:
+    def __init__(self, host=None, port=None):
+        load_dotenv()
+        
+        self.host = host or os.getenv('HOST', 'localhost')
+        self.port = int(port or os.getenv('PORT', 12345))
+        self.clients = {}  
         self.server_socket = None
         self.running = False
     
@@ -20,16 +24,15 @@ class ChatServer:
             self.server_socket.listen(10)
             self.running = True
             
-            print(f"> Chat Server started on {self.host}:{self.port}")
-            print("> Waiting for clients to connect...")
+            print(f"[PyCHAT] Server started on {self.host}:{self.port}")
+            print("[PyCHAT] Waiting for clients to connect...")
             print("-" * 50)
             
             while self.running:
                 try:
                     client_socket, address = self.server_socket.accept()
-                    print(f"> New connection from {address[0]}:{address[1]}")
+                    print(f"[CONNECT] New connection from {address[0]}:{address[1]}")
                     
-
                     client_thread = threading.Thread(
                         target=self.handle_client,
                         args=(client_socket, address)
@@ -41,26 +44,24 @@ class ChatServer:
                     break
                     
         except Exception as e:
-            print(f"> Server error: {e}")
+            print(f"[ERROR] Server error: {e}")
         finally:
             self.shutdown()
     
     def handle_client(self, client_socket, address):
-        client_name = f"User_{address[1]}"
+        client_name = f"User_{address[1]}"  
         self.clients[client_socket] = {
             'name': client_name,
             'address': address
         }
         
-
         welcome_msg = {
             'type': 'system',
-            'message': f'Welcome to the chat! Your name is {client_name}',
+            'message': f'Welcome to PyCHAT! Your name is {client_name}',
             'timestamp': datetime.now().strftime('%H:%M:%S')
         }
         self.send_to_client(client_socket, welcome_msg)
         
-
         join_msg = {
             'type': 'system',
             'message': f'{client_name} joined the chat',
@@ -70,7 +71,6 @@ class ChatServer:
         
         try:
             while self.running:
-
                 data = client_socket.recv(1024).decode('utf-8')
                 if not data:
                     break
@@ -94,7 +94,6 @@ class ChatServer:
             new_name = message_data.get('name', old_name)
             self.clients[client_socket]['name'] = new_name
             
-
             name_change_msg = {
                 'type': 'system',
                 'message': f'{old_name} changed their name to {new_name}',
@@ -103,7 +102,6 @@ class ChatServer:
             self.broadcast_message(name_change_msg)
             
         elif msg_type == 'message':
-
             client_name = self.clients[client_socket]['name']
             chat_msg = {
                 'type': 'message',
@@ -112,7 +110,7 @@ class ChatServer:
                 'timestamp': datetime.now().strftime('%H:%M:%S')
             }
             self.broadcast_message(chat_msg)
-            print(f"> {client_name}: {message_data.get('message', '')}")
+            print(f"[MESSAGE] {client_name}: {message_data.get('message', '')}")
     
     def broadcast_message(self, message, exclude=None):
         message_str = json.dumps(message)
@@ -127,7 +125,6 @@ class ChatServer:
             except socket.error:
                 disconnected_clients.append(client_socket)
         
-
         for client in disconnected_clients:
             self.disconnect_client(client)
     
@@ -143,9 +140,8 @@ class ChatServer:
             client_name = self.clients[client_socket]['name']
             address = self.clients[client_socket]['address']
             
-            print(f"> {client_name} ({address[0]}:{address[1]}) disconnected")
+            print(f"[DISCONNECT] {client_name} ({address[0]}:{address[1]}) disconnected")
             
-
             leave_msg = {
                 'type': 'system',
                 'message': f'{client_name} left the chat',
@@ -153,7 +149,6 @@ class ChatServer:
             }
             self.broadcast_message(leave_msg, exclude=client_socket)
             
-
             del self.clients[client_socket]
             
         try:
@@ -162,28 +157,29 @@ class ChatServer:
             pass
     
     def shutdown(self):
-        print("\n> Shutting down server...")
+        print("\n[SHUTDOWN] Shutting down server...")
         self.running = False
         
-
         for client_socket in list(self.clients.keys()):
             self.disconnect_client(client_socket)
         
-
         if self.server_socket:
             try:
                 self.server_socket.close()
             except:
                 pass
         
-        print("> Server shutdown complete")
+        print("[SHUTDOWN] Server shutdown complete")
 
 def main():
-    server = ChatServer()
+    print("PyCHAT Server v1.0")
+    print("==================")
+    
+    server = PyChatServer()
     try:
         server.start()
     except KeyboardInterrupt:
-        print("\n> Server interrupted by user")
+        print("\n[INTERRUPT] Server interrupted by user")
         server.shutdown()
 
 if __name__ == "__main__":
