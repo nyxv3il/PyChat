@@ -1,6 +1,6 @@
 # PyChat
 
-a simple terminal based real-time chatting platform with end-two-end encryption.
+a simple terminal based real-time chatting platform with end-to-end encryption.
 
 ### How to use
 
