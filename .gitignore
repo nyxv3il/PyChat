@@ -1,2 +1,5 @@
 pychat.key
 __pycache__/
+PyChatClient.spec
+/dist
+/build
