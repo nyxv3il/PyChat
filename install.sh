@@ -25,7 +25,7 @@ if [ ! -d "$INSTALL_DIR" ]; then
 fi
 
 echo "Copying application files..."
-cp -r client.py clientGUI.py encryption.py server.py requirements.txt "$INSTALL_DIR"
+cp -r client.py clientGUI.py encryption.py requirements.txt "$INSTALL_DIR"
 cp -r .env LICENSE README.md "$INSTALL_DIR" 2>/dev/null
 
 echo "Creating virtual environment..."
