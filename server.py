@@ -11,7 +11,7 @@ class PyChatServer:
         load_dotenv()
         
         self.host = host or os.getenv('HOST', 'localhost')
-        self.port = int(port or os.getenv('PORT', 12345))
+        self.port = int(port or os.getenv('PORT', 3300))
         self.clients = {}  
         self.server_socket = None
         self.running = False

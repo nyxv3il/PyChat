@@ -6,20 +6,23 @@ import sys
 import shutil
 from datetime import datetime
 from dotenv import load_dotenv
+from encryption import ChatEncryption
 
 class PyChatClient:
     def __init__(self, host=None, port=None):
         load_dotenv()
         
         self.host = host or os.getenv('CLIENT_HOST', 'localhost')
-        self.port = int(port or os.getenv('CLIENT_PORT', 12345))
+        self.port = int(port or os.getenv('CLIENT_PORT', 3300))
         self.socket = None
         self.running = False
         self.username = "Anonymous"
         self.messages = []
         self.terminal_width = shutil.get_terminal_size().columns
         self.terminal_height = shutil.get_terminal_size().lines
-        self.message_area_height = self.terminal_height - 6  
+        self.message_area_height = self.terminal_height - 6
+        
+        self.encryption = ChatEncryption()
         
     def connect(self):
         try:
@@ -64,7 +67,7 @@ class PyChatClient:
         self.show_input_area()
     
     def show_header(self):
-        header_line = "PyCHAT - Real-time Terminal Chat"
+        header_line = "PyCHAT - E2E Encrypted Terminal Chat"
         status_line = f"Connected as: {self.username}"
         commands_line = "Commands: /name <new_name>, /clear, /quit"
         
@@ -101,12 +104,13 @@ class PyChatClient:
                 padding = max(0, (self.terminal_width - len(formatted)) // 2)
                 return " " * padding + formatted
             else:
-                return formatted[:self.terminal_width-1]  
+                return formatted[:self.terminal_width-1]
             
         elif msg_type == 'message':
             sender = message_data.get('sender', 'Unknown')
-            message = message_data.get('message', '')
+            encrypted_message = message_data.get('message', '')
             
+            message = self.encryption.decrypt_message(encrypted_message)
             message = message.replace('\n', ' ').replace('\r', ' ')
             
             if is_own:
@@ -143,7 +147,7 @@ class PyChatClient:
     def receive_messages(self):
         while self.running:
             try:
-                data = self.socket.recv(1024).decode('utf-8')
+                data = self.socket.recv(4096).decode('utf-8')
                 if not data:
                     break
                 
@@ -208,7 +212,7 @@ class PyChatClient:
         elif cmd == '/name':
             if len(parts) > 1:
                 new_name = parts[1].strip()
-                if new_name and len(new_name) <= 20:  
+                if new_name and len(new_name) <= 20:
                     old_name = self.username
                     self.change_name(new_name)
                     success_msg = f"[SUCCESS] Name changed from {old_name} to {new_name}"
@@ -236,9 +240,15 @@ class PyChatClient:
             return
         
         try:
+            encrypted_message = self.encryption.encrypt_message(message)
+            
+            if encrypted_message is None:
+                self.messages.append("[ERROR] Failed to encrypt message")
+                return
+            
             message_data = {
                 'type': 'message',
-                'message': message
+                'message': encrypted_message
             }
             message_str = json.dumps(message_data)
             self.socket.send(message_str.encode('utf-8'))
@@ -279,8 +289,8 @@ class PyChatClient:
         sys.exit(0)
 
 def main():
-    print("PyCHAT Client v1.0")
-    print("==================")
+    print("PyCHAT Client v2.0 (E2E Encrypted)")
+    print("==================================")
     print("Starting PyCHAT Client...")
     
     client = PyChatClient()
