@@ -3,3 +3,5 @@ __pycache__/
 PyChatClient.spec
 /dist
 /build
+build_gui.bat
+PyChatGUI.spec
