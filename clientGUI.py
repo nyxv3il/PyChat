@@ -143,7 +143,7 @@ class PyChatGUI:
             title="Save New Encryption Key",
             defaultextension=".key",
             filetypes=[("Key Files", "*.key"), ("All Files", "*.*")],
-            initialfile="chat_key.key"
+            initialfile="pychat.key"
         )
         if filename:
             self.key_file = filename
